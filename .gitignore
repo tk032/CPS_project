@@ -10,3 +10,15 @@ CLAUDE.local.md
 # VS Code debug
 .vscode/
 .vs
+
+#obj
+.obj
+
+#docs
+.docs
+
+#cps_all
+.cps_all
+
+#bin
+.bin
