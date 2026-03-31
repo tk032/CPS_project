@@ -1,0 +1,11 @@
+# debug logs
+*.log
+debug/
+logs/
+
+# Claude local files
+.claude/
+CLAUDE.local.md
+
+# VS Code debug
+.vscode/
