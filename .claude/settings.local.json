@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp:*)",
+      "Bash(dotnet build:*)",
+      "Bash(mkdir:*)",
+      "Bash(dotnet add:*)",
+      "Bash(ls:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd:*)",
+      "Bash(python3:*)",
+      "Bash(file:*)",
+      "Bash(wc:*)"
+    ]
+  }
+}

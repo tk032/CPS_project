@@ -1,0 +1,255 @@
+<Window x:Class="SmartFactoryCPS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SmartFactoryCPS.ViewModels"
+        Title="택배 자동 분류 디지털 트윈 CPS"
+        Width="1280" Height="800"
+        MinWidth="1100" MinHeight="700"
+        Background="#F1F5F9"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="HdrBtn" TargetType="Button">
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="Medium"/>
+            <Setter Property="Height"          Value="36"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="14,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ 헤더 ══ -->
+        <Grid Grid.Row="0" Background="#1D293D">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal"
+                        VerticalAlignment="Center" Margin="16,0,0,0">
+                <Button Style="{StaticResource HdrBtn}" Background="#00A63E"
+                        Command="{Binding StartCommand}" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="11" Height="11" Margin="0,0,6,0">
+                            <Path Fill="White" Data="M0,0 L10,5 L0,10 Z"/>
+                        </Viewbox>
+                        <TextBlock Text="시작"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource HdrBtn}" Background="#4A5565"
+                        Command="{Binding StopCommand}" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Fill="White" Width="10" Height="10" Margin="0,0,6,0"/>
+                        <TextBlock Text="정지"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource HdrBtn}" Background="#155DFC"
+                        Command="{Binding ResetCommand}" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="11" Height="11" Margin="0,0,6,0">
+                            <Path Stroke="White" StrokeThickness="1.6" Fill="Transparent"
+                                  Data="M10,5 A5,5 0 1,1 6.5,0.5 M6.5,0.5 L6.5,3.5 L9.5,2"/>
+                        </Viewbox>
+                        <TextBlock Text="리셋"/>
+                    </StackPanel>
+                </Button>
+                <!-- PLC IP / Port 입력 (정지 상태일 때만 표시) -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="{Binding CanEditIp, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="IP" Foreground="#94A3B8" FontSize="11"
+                               VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <Border Background="#0D1B2E" CornerRadius="6" Padding="2,0"
+                            BorderBrush="#334155" BorderThickness="1">
+                        <TextBox Text="{Binding PlcIpAddress, UpdateSourceTrigger=PropertyChanged}"
+                                 Foreground="White" Background="Transparent"
+                                 BorderThickness="0" FontSize="12"
+                                 VerticalAlignment="Center" Padding="6,5"
+                                 Width="140" CaretBrush="White"
+                                 SelectionBrush="#155DFC"/>
+                    </Border>
+                    <TextBlock Text="Port" Foreground="#94A3B8" FontSize="11"
+                               VerticalAlignment="Center" Margin="10,0,6,0"/>
+                    <Border Background="#0D1B2E" CornerRadius="6" Padding="2,0"
+                            BorderBrush="#334155" BorderThickness="1">
+                        <TextBox Text="{Binding PlcPort, UpdateSourceTrigger=PropertyChanged}"
+                                 Foreground="White" Background="Transparent"
+                                 BorderThickness="0" FontSize="12"
+                                 VerticalAlignment="Center" Padding="6,5"
+                                 Width="55" CaretBrush="White"
+                                 SelectionBrush="#155DFC"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <TextBlock Grid.Column="1"
+                       Text="택배 자동 분류 시스템"
+                       FontSize="16" FontWeight="Bold" Foreground="White"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal"
+                        VerticalAlignment="Center" Margin="0,0,20,0">
+                <TextBlock Text="현재상태:" Foreground="#94A3B8" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <Ellipse Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="{Binding IsRunning, Converter={StaticResource RunningToColor}}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding MachineStatus}" Foreground="White" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Rectangle Fill="#4A5565" Width="1" Height="14" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="알람:" Foreground="#94A3B8" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding AlarmCode}" Foreground="White" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Rectangle Fill="#4A5565" Width="1" Height="14" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="{Binding IsDbConnected, Converter={StaticResource RunningToColor}}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding DbStatusText}" Foreground="#94A3B8" FontSize="11"
+                           VerticalAlignment="Center"/>
+                <!-- Factory I/O 연결 상태 -->
+                <Rectangle Fill="#4A5565" Width="1" Height="14" VerticalAlignment="Center" Margin="12,0"/>
+                <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="{Binding FioConnected, Converter={StaticResource RunningToColor}}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding FioStatusText}" Foreground="#94A3B8" FontSize="11"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ══ 바디 ══ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── 사이드 내비게이션 ── -->
+            <Border Grid.Column="0" Background="#0F172A">
+                <DockPanel>
+                    <!-- 로고 -->
+                    <Border DockPanel.Dock="Top"
+                            Padding="20,20,20,16"
+                            BorderBrush="#1E293B" BorderThickness="0,0,0,1">
+                        <StackPanel>
+                            <TextBlock Text="Smart Factory"
+                                       FontSize="15" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text="CPS 관제 시스템"
+                                       FontSize="11" Foreground="#475569" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 메뉴 라벨 -->
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="MENU" FontSize="10" FontWeight="Bold"
+                               Foreground="#334155" Margin="20,16,0,6"/>
+
+                    <!-- 내비 아이템 -->
+                    <StackPanel DockPanel.Dock="Top" Margin="12,0">
+
+                        <!-- 대시보드 -->
+                        <Button Command="{Binding ShowDashboardCommand}" Height="44">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDashboardActive}" Value="True">
+                                            <Setter Property="Background" Value="#1E3A5F"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Width="16" Height="16" Margin="0,0,10,0">
+                                    <Canvas Width="16" Height="16">
+                                        <Rectangle Canvas.Left="0" Canvas.Top="0" Width="7" Height="7"
+                                                   Fill="White" RadiusX="1" RadiusY="1"/>
+                                        <Rectangle Canvas.Left="9" Canvas.Top="0" Width="7" Height="7"
+                                                   Fill="White" RadiusX="1" RadiusY="1" Opacity="0.6"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="9" Width="7" Height="7"
+                                                   Fill="White" RadiusX="1" RadiusY="1" Opacity="0.6"/>
+                                        <Rectangle Canvas.Left="9" Canvas.Top="9" Width="7" Height="7"
+                                                   Fill="White" RadiusX="1" RadiusY="1" Opacity="0.6"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="대시보드" FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- 관리 -->
+                        <Button Command="{Binding ShowAdminCommand}" Height="44">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource NavBtn}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAdminActive}" Value="True">
+                                            <Setter Property="Background" Value="#1E3A5F"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Width="16" Height="16" Margin="0,0,10,0">
+                                    <Canvas Width="16" Height="16">
+                                        <Rectangle Canvas.Left="0" Canvas.Top="0" Width="16" Height="3"
+                                                   Fill="White" RadiusX="1" RadiusY="1"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="5" Width="16" Height="3"
+                                                   Fill="White" RadiusX="1" RadiusY="1" Opacity="0.6"/>
+                                        <Rectangle Canvas.Left="0" Canvas.Top="10" Width="16" Height="3"
+                                                   Fill="White" RadiusX="1" RadiusY="1" Opacity="0.6"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="관리" FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                    <UIElement/>
+                </DockPanel>
+            </Border>
+
+            <!-- ── 컨텐츠 영역 ── -->
+            <ContentControl Grid.Column="1"
+                            Content="{Binding CurrentView}"
+                            Focusable="False"/>
+        </Grid>
+    </Grid>
+</Window>
