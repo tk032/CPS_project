@@ -1,8 +1,0 @@
-IP - 127.0.0.1
-Address Type - IEC
-Interval - 100
-Porta - 503
-bitLadder - I
-bitModbus - Q
-inputRegister - M
-holdingRegister - W
