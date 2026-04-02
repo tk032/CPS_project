@@ -111,6 +111,17 @@
                                  Width="55" CaretBrush="White"
                                  SelectionBrush="#155DFC"/>
                     </Border>
+                    <TextBlock Text="LOC" Foreground="#94A3B8" FontSize="11"
+                               VerticalAlignment="Center" Margin="10,0,6,0"/>
+                    <Border Background="#0D1B2E" CornerRadius="6" Padding="2,0"
+                            BorderBrush="#334155" BorderThickness="1">
+                        <TextBox Text="{Binding LocId, UpdateSourceTrigger=PropertyChanged}"
+                                 Foreground="White" Background="Transparent"
+                                 BorderThickness="0" FontSize="12"
+                                 VerticalAlignment="Center" Padding="6,5"
+                                 Width="40" CaretBrush="White"
+                                 SelectionBrush="#155DFC"/>
+                    </Border>
                 </StackPanel>
             </StackPanel>
 
@@ -152,6 +163,12 @@
                 </Ellipse>
                 <TextBlock Text="{Binding FioStatusText}" Foreground="#94A3B8" FontSize="11"
                            VerticalAlignment="Center"/>
+                <!-- DB 오류 메시지 -->
+                <Rectangle Fill="#4A5565" Width="1" Height="14" VerticalAlignment="Center" Margin="12,0"
+                           Visibility="{Binding HasDbError, Converter={StaticResource BoolVis}}"/>
+                <TextBlock Text="{Binding DbLastError}" Foreground="#FF4444" FontSize="11"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding HasDbError, Converter={StaticResource BoolVis}}"/>
             </StackPanel>
         </Grid>
 

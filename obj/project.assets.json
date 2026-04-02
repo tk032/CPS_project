@@ -50,19 +50,18 @@
           "buildTransitive/net6.0/Microsoft.Extensions.Logging.Abstractions.targets": {}
         }
       },
-      "MySqlConnector/2.5.0": {
+      "Npgsql/9.0.3": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.2"
         },
         "compile": {
-          "lib/net10.0/MySqlConnector.dll": {
+          "lib/net8.0/Npgsql.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net10.0/MySqlConnector.dll": {
+          "lib/net8.0/Npgsql.dll": {
             "related": ".xml"
           }
         }
@@ -1342,35 +1341,21 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "MySqlConnector/2.5.0": {
-      "sha512": "hoAwfHHF8DlRRqwHOhN3u1KLi+XbX/4LPS7Anfa+SYC97vRyIfdEOEEfj1L50q01Ik8aDNvmDrNmu/VPFiAiaQ==",
+    "Npgsql/9.0.3": {
+      "sha512": "tPvY61CxOAWxNsKLEBg+oR646X4Bc8UmyQ/tJszL/7mEmIXQnnBhVJZrZEEUv0Bstu0mEsHZD5At3EO8zQRAYw==",
       "type": "package",
-      "path": "mysqlconnector/2.5.0",
+      "path": "npgsql/9.0.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "lib/net10.0/MySqlConnector.dll",
-        "lib/net10.0/MySqlConnector.xml",
-        "lib/net462/MySqlConnector.dll",
-        "lib/net462/MySqlConnector.xml",
-        "lib/net471/MySqlConnector.dll",
-        "lib/net471/MySqlConnector.xml",
-        "lib/net48/MySqlConnector.dll",
-        "lib/net48/MySqlConnector.xml",
-        "lib/net6.0/MySqlConnector.dll",
-        "lib/net6.0/MySqlConnector.xml",
-        "lib/net8.0/MySqlConnector.dll",
-        "lib/net8.0/MySqlConnector.xml",
-        "lib/net9.0/MySqlConnector.dll",
-        "lib/net9.0/MySqlConnector.xml",
-        "lib/netstandard2.0/MySqlConnector.dll",
-        "lib/netstandard2.0/MySqlConnector.xml",
-        "lib/netstandard2.1/MySqlConnector.dll",
-        "lib/netstandard2.1/MySqlConnector.xml",
-        "logo.png",
-        "mysqlconnector.2.5.0.nupkg.sha512",
-        "mysqlconnector.nuspec"
+        "lib/net6.0/Npgsql.dll",
+        "lib/net6.0/Npgsql.xml",
+        "lib/net8.0/Npgsql.dll",
+        "lib/net8.0/Npgsql.xml",
+        "npgsql.9.0.3.nupkg.sha512",
+        "npgsql.nuspec",
+        "postgresql.png"
       ]
     },
     "runtime.android-arm.runtime.native.System.IO.Ports/10.0.5": {
@@ -1929,7 +1914,7 @@
   "projectFileDependencyGroups": {
     "net10.0-windows7.0": [
       "EasyModbusTCP >= 5.6.0",
-      "MySqlConnector >= 2.5.0",
+      "Npgsql >= 9.0.3",
       "System.IO.Ports >= 10.0.5"
     ]
   },
@@ -1987,9 +1972,9 @@
             "target": "Package",
             "version": "[5.6.0, )"
           },
-          "MySqlConnector": {
+          "Npgsql": {
             "target": "Package",
-            "version": "[2.5.0, )"
+            "version": "[9.0.3, )"
           },
           "System.IO.Ports": {
             "target": "Package",
@@ -2317,7 +2302,7 @@
       "message": "프로젝트 대상 프레임워크 'net10.0-windows7.0' 대신 '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1'을(를) 사용하여 패키지 'EasyModbusTCP 5.6.0'을(를) 복원했습니다. 이 패키지는 프로젝트와 완벽하게 호환되지 않을 수 있습니다.",
       "libraryId": "EasyModbusTCP",
       "targetGraphs": [
-        "net10.0-windows"
+        "net10.0-windows7.0"
       ]
     }
   ]

@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace SmartFactoryCPS.Converters;
+namespace SmartFactoryCPS.ViewModels;
 
 /// <summary>bool IsRunning → 헤더 상태 점 색상</summary>
 [ValueConversion(typeof(bool), typeof(Color))]

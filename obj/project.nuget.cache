@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "KKGyh3xfSzU=",
+  "dgSpecHash": "QzGf6FrStI4=",
   "success": true,
   "projectFilePath": "C:\\Users\\tedya\\source\\repos\\Smart_Factory\\project\\project_CPS\\SmartFactoryCPS.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tedya\\.nuget\\packages\\easymodbustcp\\5.6.0\\easymodbustcp.5.6.0.nupkg.sha512",
     "C:\\Users\\tedya\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
     "C:\\Users\\tedya\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
-    "C:\\Users\\tedya\\.nuget\\packages\\mysqlconnector\\2.5.0\\mysqlconnector.2.5.0.nupkg.sha512",
+    "C:\\Users\\tedya\\.nuget\\packages\\npgsql\\9.0.3\\npgsql.9.0.3.nupkg.sha512",
     "C:\\Users\\tedya\\.nuget\\packages\\runtime.android-arm.runtime.native.system.io.ports\\10.0.5\\runtime.android-arm.runtime.native.system.io.ports.10.0.5.nupkg.sha512",
     "C:\\Users\\tedya\\.nuget\\packages\\runtime.android-arm64.runtime.native.system.io.ports\\10.0.5\\runtime.android-arm64.runtime.native.system.io.ports.10.0.5.nupkg.sha512",
     "C:\\Users\\tedya\\.nuget\\packages\\runtime.android-x64.runtime.native.system.io.ports\\10.0.5\\runtime.android-x64.runtime.native.system.io.ports.10.0.5.nupkg.sha512",
@@ -37,7 +37,7 @@
       "filePath": "C:\\Users\\tedya\\source\\repos\\Smart_Factory\\project\\project_CPS\\SmartFactoryCPS.csproj",
       "libraryId": "EasyModbusTCP",
       "targetGraphs": [
-        "net10.0-windows"
+        "net10.0-windows7.0"
       ]
     }
   ]

@@ -46,6 +46,10 @@
                         BorderBrush="#E2E8F0" BorderThickness="1" VerticalAlignment="Center">
                     <TextBlock Text="CRUD 관리" FontSize="12" Foreground="#64748B"/>
                 </Border>
+                <Border Margin="8,0,0,0" Background="#EFF6FF" CornerRadius="6" Padding="10,4"
+                        BorderBrush="#BFDBFE" BorderThickness="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding LocLabel}" FontSize="12" Foreground="#155DFC" FontWeight="SemiBold"/>
+                </Border>
             </StackPanel>
 
             <!-- ══ 분류 이력 관리 ══ -->

@@ -548,9 +548,24 @@
                                         <TextBlock Text="수량" Foreground="#6A7282" FontSize="10" Margin="0,0,0,2"/>
                                         <TextBlock Text="{Binding Count}" FontSize="22"
                                                    FontWeight="Bold" Foreground="#1D293D" Margin="0,0,0,6"/>
-                                        <TextBlock Text="누적 무게" Foreground="#6A7282" FontSize="10" Margin="0,0,0,2"/>
-                                        <TextBlock Text="{Binding TotalWeight, StringFormat='{}{0:F1} kg'}"
-                                                   FontSize="13" FontWeight="SemiBold" Foreground="#314158"/>
+                                        <StackPanel>
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RegionCode}" Value="5">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <TextBlock Text="누적 무게" Foreground="#6A7282" FontSize="10" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding TotalWeight, StringFormat='{}{0:F1} kg'}"
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="#314158" Margin="0,0,0,6"/>
+                                            <TextBlock Text="팔레트" Foreground="#6A7282" FontSize="10" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding PaletteCount}"
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="#314158"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

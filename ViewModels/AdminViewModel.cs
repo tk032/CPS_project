@@ -12,12 +12,17 @@ public class AdminViewModel : INotifyPropertyChanged
 {
     private readonly DbService _db = new();
     private readonly DispatcherTimer _refreshTimer = new() { Interval = TimeSpan.FromSeconds(5) };
+    private readonly Func<int> _getLocId;
+    private int _locId => _getLocId();
+
+    public string LocLabel => $"LOC-{_locId}";
 
     // 지역 필터 옵션 항목
     public record RegionFilterOption(string Label, string? Value);
 
-    public AdminViewModel()
+    public AdminViewModel(Func<int> getLocId)
     {
+        _getLocId = getLocId;
         Parcels = new ObservableCollection<ParcelAdminRow>();
 
         RegionFilterOptions = new List<RegionFilterOption>
@@ -32,8 +37,6 @@ public class AdminViewModel : INotifyPropertyChanged
         _selectedRegionFilter = RegionFilterOptions[0];
 
         LoadParcelsCommand           = new RelayCommand(async _ => await LoadParcelsAsync());
-        DeleteParcelCommand          = new RelayCommand(async _ => await DeleteParcelAsync(),
-                                                        _ => SelectedParcel != null);
         DeleteSelectedParcelsCommand = new RelayCommand(async _ => await DeleteSelectedParcelsAsync(),
                                                         _ => Parcels.Any(p => p.IsSelected));
         SelectAllCommand             = new RelayCommand(_ => SetAllSelected(true));
@@ -76,18 +79,10 @@ public class AdminViewModel : INotifyPropertyChanged
     public ParcelAdminRow? SelectedParcel
     {
         get => _selectedParcel;
-        set
-        {
-            _selectedParcel = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(HasSelectedParcel));
-            CommandManager.InvalidateRequerySuggested();
-        }
+        set { _selectedParcel = value; OnPropertyChanged(); }
     }
-    public bool HasSelectedParcel => SelectedParcel != null;
 
     public ICommand LoadParcelsCommand           { get; }
-    public ICommand DeleteParcelCommand          { get; }
     public ICommand DeleteSelectedParcelsCommand { get; }
     public ICommand SelectAllCommand             { get; }
     public ICommand DeselectAllCommand           { get; }
@@ -98,8 +93,9 @@ public class AdminViewModel : INotifyPropertyChanged
 
     private async Task LoadParcelsAsync()
     {
+        OnPropertyChanged(nameof(LocLabel));
         var region = _selectedRegionFilter?.Value;
-        var rows   = await _db.GetParcelsAsync(_parcelSearch, region);
+        var rows   = await _db.GetParcelsAsync(_parcelSearch, region, locId: _locId);
         Parcels.Clear();
         foreach (var r in rows)
         {
@@ -113,14 +109,6 @@ public class AdminViewModel : INotifyPropertyChanged
         ParcelCount = Parcels.Count;
         OnPropertyChanged(nameof(SelectedCount));
         OnPropertyChanged(nameof(HasSelectedItems));
-    }
-
-    private async Task DeleteParcelAsync()
-    {
-        if (SelectedParcel is null) return;
-        var ok = await _db.DeleteParcelAsync(SelectedParcel.Id);
-        if (ok) await LoadParcelsAsync();
-        else ErrorMessage = "삭제 실패: 연결을 확인하세요.";
     }
 
     private async Task DeleteSelectedParcelsAsync()
@@ -150,7 +138,7 @@ public class AdminViewModel : INotifyPropertyChanged
 
         if (result != MessageBoxResult.Yes) return;
 
-        var ok = await _db.ClearAllDataAsync();
+        var ok = await _db.ClearAllDataAsync(_locId);
         if (ok)
         {
             ErrorMessage = "";
