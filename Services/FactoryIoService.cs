@@ -110,6 +110,8 @@ public class FactoryIoService : IDisposable
                 // FC2 %IX0~17 (Diffuse 센서 + DI14~17 분류 트리거)
                 bool[] di = _client.ReadDiscreteInputs(0, PlcAddr.DiReadCount);
                 // FC3 %WW22~29 (누적무게 WW22~25 + 팔레트 WW26~29)
+                // XG5000이 WW를 업데이트하는 데 한 스캔 주기가 필요하므로 200ms 대기
+                await Task.Delay(200, token);
                 int[]  ww = _client.ReadHoldingRegisters(PlcAddr.WwWeightSum1, 8);
 
                 // ── BoxEntered: Diffuse1 상승 에지 → CmdId 변화 → 지역코드 읽기 ──
