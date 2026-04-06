@@ -195,9 +195,37 @@ parcel       (id, box_id, region_code, region_name, weight_kg, sort_result, loc_
 
 ## Factory IO 설정
 
-> 추후 작성 예정
+### Scene 구성
 
-<!-- Factory IO 씬 구성, 사용한 센서·액추에이터, Modbus 드라이버 설정 등 -->
+![facio1](https://github.com/user-attachments/assets/fa289ac8-09c3-4c22-bbff-7367f8f74757)
+
+- 우측 출발점에서 택배 상자를 생성
+
+- 2개의 RFID리더를 통해 지역코드(1~4)와 무게(40~70kg)를 부여
+- 지역코드에 따라 4갈래로 분류
+- 분류 실패 또는 오류 발생시 분류되지 않고 메인레일 좌측 끝의 Reject로 이동
+- 분류된 택배는 무게를 누적하여 트레일러의 적재량을 모니터링
+
+
+
+### Sensor
+
+![facio2](https://github.com/user-attachments/assets/24b40193-b7d6-4cde-859f-ca76f11c8da2)
+
+- (좌) RFID Reader
+  - 로직에 따라 개체(택배상자)에 데이터를 심거나 불러오는 기능 수행
+- (우) Diffuse Sensor
+  - 개체(택배상자)의 현 위치에 따라 로직을 실행하기 위한 로직 트리거 역할 수행
+
+
+
+### Factory I/O Drivers 설정
+
+![driver1](https://github.com/user-attachments/assets/bef8c1c8-8af6-4a93-8e07-4fccb0646d3b)
+
+![driver2](https://github.com/user-attachments/assets/a32da454-2f67-4931-ba55-88f0fcbab7f6)
+
+
 
 <br>
 
@@ -205,9 +233,46 @@ parcel       (id, box_id, region_code, region_name, weight_kg, sort_result, loc_
 
 ## XG5000 래더 로직
 
-> 추후 작성 예정
+### 로직 구조
 
-<!-- 래더 로직 구조, RFID 읽기 로직, 푸셔 제어, 누적무게·팔레트 계산 로직 등 -->
+크게 RFID 쓰기, RFID 읽기, Pusher 제어, 무게합 계산 으로 나눌 수 있음.
+
+#### RFID 쓰기
+
+![rfid쓰기](https://github.com/user-attachments/assets/c54be60f-6951-4c23-bed2-e9189aefe5fb)
+
+- RFID 리더에 3번 명령(write data) 및 Memory Index를 0번으로 지정
+- 로직에 따라 처리되어 D100에 저장해둔 랜덤 지역코드를 해당 위치에 저장
+- 무게 저장의 경우도 동일한 방식으로 처리
+
+
+
+#### RFID 읽기
+
+![rfid읽기](https://github.com/user-attachments/assets/53298fab-7793-4a07-9092-0e68bbb35095)
+
+- RFID리더에 2번 명령(Read data) 및 Memory Index를 0번으로 지정
+- 해당 값을 읽어 PLC메모리에 저장
+- 무게 읽기의 경우에도 동일한 방식으로 처리
+
+
+
+#### Pusher 제어
+
+![푸셔로직](https://github.com/user-attachments/assets/d547998c-c407-482f-a0e8-a276940f3bf5)
+
+- diffuse sensor에 신호가 잡히면 pusher가 limit 거리까지 작동 후 limit에 닿으면 신호를 off하여 원위치
+- 'sensor에 신호가 잡히면 작동한다' 로 끝낼 경우 작은 택배가 지나가면 pusher가 완전히 동작하기 전에 신호가 꺼질 우려 있음
+
+
+
+#### 무게합 모니터링
+
+![무게읽기2](https://github.com/user-attachments/assets/ce2577d3-83d3-49a6-be06-91215ac0a0a9)
+
+![무게읽기2](https://github.com/user-attachments/assets/4ecf054c-77c1-4614-901b-01994685176e)
+
+- 무게합을 메모리에 누적하여 모니터링하다가 적재 제한 (1000kg)을 초과하면 한 팔레트를 채웠음으로 간주하고 팔레트(트레일러) 카운트를 +1, 무게합은 0으로 초기화
 
 <br>
 
