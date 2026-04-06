@@ -38,10 +38,12 @@ public class FactoryIoService : IDisposable
     public bool IsConnected { get; private set; }
 
     // ── 이벤트 ───────────────────────────────────────────────────────
-    public event Action<bool>?                   ConnectionChanged;
-    public event Action<int, string>?            BoxEntered;
-    public event Action<int, string, int, int, int>?  BoxSorted;   // (region, name, boxWeight, cumWeight, paletteCount)
-    public event Action<bool, bool, bool, bool>? DiffuseSensorsChanged;
+    public event Action<bool>?                       ConnectionChanged;
+    public event Action<int, string>?                BoxEntered;
+    public event Action<int, string, int, int, int>? BoxSorted;        // (region, name, boxWeight, cumWeight, paletteCount)
+    public event Action<bool, bool, bool, bool>?     DiffuseSensorsChanged;
+    public event Action<int, string>?                BoxStuck;          // (alarmCode, message)
+    public event Action<int>?                        BoxStuckCleared;   // (alarmCode)
 
     // ── BoxEntered 전용 상태 ─────────────────────────────────────────
     private bool _waitCmd1;
@@ -49,6 +51,13 @@ public class FactoryIoService : IDisposable
 
     // ── 이전 DI 상태 (상승 에지 감지용) ─────────────────────────────
     private bool[] _prevDi = new bool[PlcAddr.DiReadCount];
+
+    // ── BoxStuck 감지용 (sort: code 1~4 / pusher: code 11~14) ────────
+    private readonly DateTime?[] _sortHighSince   = new DateTime?[4];
+    private readonly bool[]      _sortStuckFired  = new bool[4];
+    private readonly DateTime?[] _pushHighSince   = new DateTime?[4];
+    private readonly bool[]      _pushStuckFired  = new bool[4];
+    private const double         StuckSeconds     = 3.0;
 
     public FactoryIoService()
     {
@@ -127,18 +136,74 @@ public class FactoryIoService : IDisposable
                 if (Rising(di, _prevDi, PlcAddr.DiDiffuse1))
                 { _waitCmd1 = true; _baseCmd1 = _prevCmd1; }
 
-                // ── BoxSorted: DI14~17 상승 에지 → 개별무게 + 누적무게 읽기 ────
+                // ── BoxSorted: DI21~24 상승 에지 → 개별무게 + 누적무게 읽기 ────
+                // ── BoxStuck:  DI21~24 HIGH 3초 이상 → 박스 걸림 알람 (code 1~4) ─
 
                 for (int i = 0; i < Channels.Length; i++)
                 {
-                    if (Rising(di, _prevDi, Channels[i].sortDi))
+                    int  diIdx  = Channels[i].sortDi;
+                    bool isHigh = diIdx < di.Length && di[diIdx];
+                    int  code   = Channels[i].region;
+                    string name = Channels[i].name;
+
+                    if (Rising(di, _prevDi, diIdx))
                     {
-                        int w  = mw[Channels[i].weightMw];
-                        int s  = ww[i];     // WW22~25 누적무게
-                        int p  = ww[i + 4]; // WW26~29 팔레트 수
-                        int region = Channels[i].region;
-                        string name = Channels[i].name;
-                        InvokeOnUi(() => BoxSorted?.Invoke(region, name, w, s, p));
+                        int w = mw[Channels[i].weightMw];
+                        int s = ww[i];
+                        int p = ww[i + 4];
+                        InvokeOnUi(() => BoxSorted?.Invoke(code, name, w, s, p));
+                        _sortHighSince[i]  = DateTime.Now;
+                        _sortStuckFired[i] = false;
+                    }
+                    else if (isHigh && _sortHighSince[i] != null && !_sortStuckFired[i])
+                    {
+                        if ((DateTime.Now - _sortHighSince[i]!.Value).TotalSeconds >= StuckSeconds)
+                        {
+                            _sortStuckFired[i] = true;
+                            string msg = $"{name} 분류 구간 박스 걸림 감지";
+                            InvokeOnUi(() => BoxStuck?.Invoke(code, msg));
+                        }
+                    }
+                    else if (!isHigh)
+                    {
+                        if (_sortStuckFired[i])
+                            InvokeOnUi(() => BoxStuckCleared?.Invoke(code));
+                        _sortHighSince[i]  = null;
+                        _sortStuckFired[i] = false;
+                    }
+                }
+
+                // ── PusherStuck: DI17~20 HIGH 3초 이상 → 푸셔 박스 걸림 (code 11~14) ─
+
+                for (int i = 0; i < Channels.Length; i++)
+                {
+                    int  diIdx  = PlcAddr.DiPushers[i];
+                    bool isHigh = diIdx < di.Length && di[diIdx];
+                    int  code   = 10 + Channels[i].region;
+                    string name = Channels[i].name;
+
+                    if (!isHigh && _pushHighSince[i] == null) continue;
+
+                    if (isHigh && _pushHighSince[i] == null)
+                    {
+                        _pushHighSince[i]  = DateTime.Now;
+                        _pushStuckFired[i] = false;
+                    }
+                    else if (isHigh && !_pushStuckFired[i])
+                    {
+                        if ((DateTime.Now - _pushHighSince[i]!.Value).TotalSeconds >= StuckSeconds)
+                        {
+                            _pushStuckFired[i] = true;
+                            string msg = $"{name} 푸셔 박스 걸림 감지";
+                            InvokeOnUi(() => BoxStuck?.Invoke(code, msg));
+                        }
+                    }
+                    else if (!isHigh)
+                    {
+                        if (_pushStuckFired[i])
+                            InvokeOnUi(() => BoxStuckCleared?.Invoke(code));
+                        _pushHighSince[i]  = null;
+                        _pushStuckFired[i] = false;
                     }
                 }
 
@@ -210,6 +275,9 @@ public static class PlcAddr
     public const int DiDiffuse2  = 6;
     public const int DiDiffuse3  = 7;
     public const int DiDiffuse4  = 8;
+
+    // ── FC2 %IX — 푸셔 감지 (Input 17~20) ───────────────────────────
+    public static readonly int[] DiPushers = { 17, 18, 19, 20 }; // 서울~부산
 
     // ── FC2 %IX — BoxSorted 트리거 (Input 21~24) ─────────────────────
     public const int DiSort1     = 21; // 서울 분류 완료

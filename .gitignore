@@ -15,13 +15,13 @@ CLAUDE.local.md
 obj/
 
 
-#docs
-docs/
 
 
 #cps_all
 cps_all/
 
+#docs
+docs/
 
 #bin
 bin/

@@ -84,7 +84,7 @@ public class DbService
                     RegionName = r.GetString(2),
                     WeightKg   = r.GetDouble(3),
                     SortResult = r.GetString(4),
-                    SortedAt   = r.GetDateTime(5),
+                    SortedAt   = r.GetDateTime(5).ToLocalTime(),
                 });
         }
         catch { }

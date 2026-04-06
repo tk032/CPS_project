@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -20,8 +21,8 @@ public class MainViewModel : INotifyPropertyChanged
 
     private int      _nextBoxId;
     private DateTime _startTime;
-    private readonly int[] _sessionCounts = new int[6];
     private readonly Dictionary<int, int> _pendingSortedCodes = new();
+    private readonly HashSet<int>         _activeAlarms       = new();
 
     public ObservableCollection<ConveyorBoxVm> ConveyorBoxes { get; } = new();
 
@@ -98,6 +99,29 @@ public class MainViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(FioConnected));
         };
 
+        _fio.BoxStuck += (alarmCode, message) =>
+        {
+            _activeAlarms.Add(alarmCode);
+            HasActiveAlarm = true;
+            AlarmCode      = alarmCode;
+            AlarmMessage   = $"경고: {message}";
+        };
+
+        _fio.BoxStuckCleared += alarmCode =>
+        {
+            _activeAlarms.Remove(alarmCode);
+            if (_activeAlarms.Count == 0)
+            {
+                HasActiveAlarm = false;
+                AlarmCode      = 0;
+                AlarmMessage   = "활성 알람 없음";
+            }
+            else
+            {
+                AlarmCode = _activeAlarms.Max();
+            }
+        };
+
         _fio.DiffuseSensorsChanged += (s1, s2, s3, s4) =>
         {
             IsRfid1Scanning = s1;
@@ -156,7 +180,6 @@ public class MainViewModel : INotifyPropertyChanged
                 stat.PaletteCount = paletteCount;
             }
 
-            _sessionCounts[regionCode]++;
             TotalProcessed++;
             UpdateThroughput();
 
@@ -167,12 +190,6 @@ public class MainViewModel : INotifyPropertyChanged
                 RegionName = regionName, Weight = boxWeight, Status = "분류 완료",
             };
 
-            if (!_hasActiveAlarm && _sessionCounts[regionCode] >= 30)
-            {
-                HasActiveAlarm = true;
-                AlarmCode      = regionCode;
-                AlarmMessage   = $"경고: {regionName} 누적 수량 임계치 초과 (세션 {_sessionCounts[regionCode]}건)";
-            }
 
             if (EventLogs.Count >= 50) EventLogs.RemoveAt(EventLogs.Count - 1);
             EventLogs.Insert(0, new EventLogEntry
@@ -330,7 +347,6 @@ public class MainViewModel : INotifyPropertyChanged
         CurrentBox        = null;
         ConveyorBoxes.Clear();
         _pendingSortedCodes.Clear();
-        Array.Clear(_sessionCounts, 0, _sessionCounts.Length);
     }
 
     private void Reset()
@@ -341,6 +357,7 @@ public class MainViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(HasEvents));
         TotalProcessed      = 0;
         ThroughputPerMinute = 0;
+        _activeAlarms.Clear();
         HasActiveAlarm      = false;
         AlarmCode           = 0;
         AlarmMessage        = "활성 알람 없음";
